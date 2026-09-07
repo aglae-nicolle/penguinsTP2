@@ -1,0 +1,71 @@
+---
+import PlotFigure from "../../components/PlotFigure.astro";
+import Layout from "../../layouts/Layout.astro";
+import * as Plot from "@observablehq/plot";
+import penguins from "../../assets/penguins.json";
+
+const penguinsAdelie = penguins.filter(({ species }) => species === "Adelie");
+---
+
+<Layout>
+    <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
+
+    <div class="mb-4">
+        <label for="species-filter" class="mr-2 font-bold">Espèce :</label>
+        <select id="species-filter" class="border p-2 rounded">
+            <option value="all">Toutes les espèces</option>
+            <option value="Adelie">Adelie</option>
+            <option value="Chinstrap">Chinstrap</option>
+            <option value="Gentoo">Gentoo</option>
+        </select>
+    </div>
+
+    <div id="plot-container">
+        <PlotFigure
+            options={{
+                marks: [
+                    Plot.dot(penguins, {
+                        x: "culmen_length_mm",
+                        y: "culmen_depth_mm",
+                        stroke: "species",
+                    }),
+                ],
+            }}
+        />
+    </div>
+
+    <script client:load>
+        import { Plot } from "@observablehq/plot";
+        import penguinsData from "./penguins.json";
+
+        const select = document.getElementById("species-filter");
+        const container = document.getElementById("plot-container");
+
+        function renderPlot(data) {
+            container.innerHTML = "";
+            const plot = Plot.plot({
+                marks: [
+                    Plot.dot(data, {
+                        x: "culmen_length_mm",
+                        y: "culmen_depth_mm",
+                        stroke: "species",
+                    }),
+                ],
+            });
+            container.appendChild(plot);
+        }
+
+        select.addEventListener("change", (e) => {
+            const selectedSpecies = e.target.value;
+
+            if (selectedSpecies === "all") {
+                renderPlot(penguinsData);
+            } else {
+                const filteredData = penguinsData.filter(
+                    (p) => p.species === selectedSpecies,
+                );
+                renderPlot(filteredData);
+            }
+        });
+    </script>
+</Layout>
