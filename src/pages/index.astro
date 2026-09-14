@@ -1,9 +1,13 @@
 ---
 import GraphicSpecies from "../components/GraphicSpecies.astro";
+import Header from "../components/Header.astro";
 import Layout from "../layouts/Layout.astro";
+
+const especePenguins = Astro.url.searchParams.get("espece") ?? undefined;
 ---
 
 <Layout>
+  <Header />
   <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <GraphicSpecies />
+  <GraphicSpecies especePenguins={especePenguins} />
 </Layout>
