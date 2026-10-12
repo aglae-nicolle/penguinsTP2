@@ -1,11 +1,53 @@
 ---
-import GraphicSpecies from "../components/GraphicSpecies.astro";
 import Layout from "../layouts/Layout.astro";
+import GraphicSpecies from "../components/GraphicSpecies.astro";
 
-const especePenguins = Astro.url.searchParams.get("espece") ?? undefined;
+const species = ["Adelie", "Gentoo", "Chinstrap"] as const;
 ---
 
-<Layout>
-  <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <GraphicSpecies especePenguins={especePenguins} />
+<Layout title="Penguins – ancres">
+  <nav class="sticky top-0 z-10 flex gap-4 bg-white p-4 border-b">
+    {
+      species.map((s) => (
+        <a
+          href={`#${s}`}
+          class="menu-item px-3 py-1 rounded hover:bg-gray-100 [&.active]:bg-red-200 [&.active]:font-bold"
+        >
+          {s}
+        </a>
+      ))
+    }
+  </nav>
+
+  <!-- Slider horizontal en CSS pur -->
+  <div class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
+    {
+      species.map((s) => (
+        <section id={s} class="item snap-center shrink-0 w-full">
+          <GraphicSpecies species={s} />
+        </section>
+      ))
+    }
+  </div>
 </Layout>
+
+<script>
+  const items = document.querySelectorAll(".item");
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute("id");
+        const menuItem = document.querySelector(`.menu-item[href="#${id}"]`);
+        if (entry.isIntersecting) {
+          menuItem?.classList.add("active");
+        } else {
+          menuItem?.classList.remove("active");
+        }
+      });
+    },
+    { threshold: 0.5 },
+  );
+
+  items.forEach((item) => observer.observe(item));
+</script>

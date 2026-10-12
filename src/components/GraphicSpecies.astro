@@ -1,23 +1,33 @@
 ---
-import PlotFigure from "../components/PlotFigure.astro";
 import * as Plot from "@observablehq/plot";
+import { JSDOM } from "jsdom";
 import penguins from "../assets/penguins.json";
 
-const { especePenguins } = Astro.props;
+interface Props {
+    species: "Adelie" | "Gentoo" | "Chinstrap";
+}
+const { species } = Astro.props;
 
-const filteredData = especePenguins
-    ? penguins.filter(({ species }) => species === especePenguins)
-    : penguins;
+const penguinsSpecies = penguins.filter((p) => p.species === species);
+
+const { document } = new JSDOM("").window;
+
+const plot = Plot.plot({
+    document,
+    width: 640,
+    grid: true,
+    marks: [
+        Plot.dot(penguinsSpecies, {
+            x: "culmen_length_mm",
+            y: "culmen_depth_mm",
+            stroke: "sex",
+            tip: true,
+        }),
+    ],
+});
 ---
 
-<PlotFigure
-    options={{
-        marks: [
-            Plot.dot(filteredData, {
-                x: "culmen_length_mm",
-                y: "culmen_depth_mm",
-                stroke: "species",
-            }),
-        ],
-    }}
-/>
+<figure class="p-4">
+    <figcaption class="mb-2 text-xl font-semibold">{species}</figcaption>
+    <Fragment set:html={plot.outerHTML} />
+</figure>
